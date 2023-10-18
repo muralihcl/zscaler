@@ -1,3 +1,24 @@
+#!/bin/bash
+# Bash script to update zscaler root certificate on Red Hat and Debian based distros
+# Author: Muralidhara Kakkunje
+# Email : muralihcl@gmail.com
+
+# Source the os-release file and identify distro
+source /etc/os-release
+
+# Define the root cert path and update cert command
+if [[ ${ID} == 'redhat' ]] || [[ ${ID} == 'rocky' ]] || [[ ${ID} == 'centos' ]] || [[ ${ID} == 'fedora' ]]
+then
+  root_cert_file="/etc/pki/ca-trust/source/anchors/zscaler_root.cer"
+  update_cert_cmd="update-ca-trust"
+elif [[ ${ID} == 'debian' ]] || [[ ${ID} == 'ubuntu' ]]
+then
+  root_cert_file="/usr/local/share/ca-certificates/zscaler_root.crt"
+  update_cert_cmd="update-ca-certificates"
+fi
+
+# Create the root certificate
+cat > ${root_cert_file} << EOF
 -----BEGIN CERTIFICATE-----
 MIIE0zCCA7ugAwIBAgIJANu+mC2Jt3uTMA0GCSqGSIb3DQEBCwUAMIGhMQswCQYD
 VQQGEwJVUzETMBEGA1UECBMKQ2FsaWZvcm5pYTERMA8GA1UEBxMIU2FuIEpvc2Ux
@@ -26,3 +47,7 @@ kd7lLvJsBu3AO3jGWVLyPkS3i6Gf+rwAp1OsRrv3WnbkYcFf9xjuaf4z0hRCrLN2
 xFNjavxrHmsH8jPHVvgc1VD0Opja0l/BRVauTrUaoW6tE+wFG5rEcPGS80jjHK4S
 pB5iDj2mUZH1T8lzYtuZy0ZPirxmtsk3135+CKNa2OCAhhFjE0xd
 -----END CERTIFICATE-----
+EOF
+
+# Run command to update CA Certificate
+${update_cert_cmd}
